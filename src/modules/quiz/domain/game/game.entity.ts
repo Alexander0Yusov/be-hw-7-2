@@ -33,6 +33,9 @@ export class Game extends BaseDomainEntity {
   status: GameStatuses;
 
   @Column({ type: 'timestamptz', default: null })
+  startGameDate: Date | null;
+
+  @Column({ type: 'timestamptz', default: null })
   finishGameDate: Date | null;
 
   static createInstance(firstPlayerId: number): Game {
@@ -61,6 +64,7 @@ export class Game extends BaseDomainEntity {
 
     this.secondPlayerProgress = progress;
 
+    this.startGameDate = new Date();
     this.status = GameStatuses.Active;
 
     const randomQuestions = await questionRepo
