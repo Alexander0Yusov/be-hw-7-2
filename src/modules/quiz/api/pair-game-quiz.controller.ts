@@ -14,7 +14,6 @@ import { ExtractUserFromRequest } from 'src/modules/user-accounts/guards/decorat
 import { UserContextDto } from 'src/modules/user-accounts/guards/dto/user-context.dto';
 import { PostConnectionViewDto } from '../dto/game-pair-quiz/post-connection-view.dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ConnectOrCreatePairCommand } from '../application/usecases/games/connect-or-create-pair.usecase';
 import { GamesQueryRepository } from '../infrastructure/query/games-query.repository';
 import { AnswerInputDto } from '../dto/answer/answer-input.dto';
 import { AnswerView } from '../dto/answer/answer-view';
@@ -22,6 +21,9 @@ import { MakeAnswerCommand } from '../application/usecases/answers/make-answer.u
 import { AnswersQueryRepository } from '../infrastructure/query/answers-query.repository';
 import { GetMyCurrentQuery } from '../application/usecases/games/get-my-current.query-handler';
 import { GetGameByIdQuery } from '../application/usecases/games/get-current-game-by-id.query-handler';
+import { StatisticViewDto } from '../dto/game-pair-quiz/statistic-view.dto';
+import { PlayerProgressQueryRepository } from '../infrastructure/query/player-progress-query.repository';
+import { ConnectOrCreatePairCommand } from '../application/usecases/games/connect-or-create-pair.usecase';
 
 @Controller('pair-game-quiz/pairs')
 export class PairGameQuizController {
@@ -31,6 +33,7 @@ export class PairGameQuizController {
 
     private answersQueryRepository: AnswersQueryRepository,
     private gamesQueryRepository: GamesQueryRepository,
+    private playerProgressQueryRepository: PlayerProgressQueryRepository,
   ) {}
 
   @Post('connection')
@@ -72,6 +75,19 @@ export class PairGameQuizController {
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<PostConnectionViewDto> {
     return await this.queryBus.execute(new GetMyCurrentQuery(user.id));
+  }
+
+  @Get('my-statistic')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getMyStatistic(
+    @ExtractUserFromRequest() user: UserContextDto,
+  ): Promise<StatisticViewDto> {
+    console.log(88888888, '=======================================', user.id);
+
+    return await this.playerProgressQueryRepository.getStatisticByUserId(
+      user.id,
+    );
   }
 
   @Get(':id')

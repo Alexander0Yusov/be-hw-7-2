@@ -146,14 +146,30 @@ export class MakeAnswerUseCase
     console.log('Баллов на счету:', currentPlayerProgress.score);
 
     // если этот ответ стал последним для обоих
-    // то меняем статус игры
+    // то меняем статус игры и статусы прогрессов
     if (
       otherPlayerProgress.answers.length === game.gameQuestions.length &&
       currentPlayerProgress.answers.length === game.gameQuestions.length
     ) {
       // значит другой игрок справился раньше и ему присуждается бонус+1
       otherPlayerProgress.incrementScore();
+
+      if (otherPlayerProgress.score > currentPlayerProgress.score) {
+        otherPlayerProgress.makeWin();
+        currentPlayerProgress.makeLoss();
+      } else if (otherPlayerProgress.score < currentPlayerProgress.score) {
+        otherPlayerProgress.makeLoss();
+        currentPlayerProgress.makeWin();
+      } else {
+        otherPlayerProgress.makeDraw();
+        currentPlayerProgress.makeDraw();
+      }
+
       await this.playerProgressRepository.save(otherPlayerProgress);
+      await this.playerProgressRepository.save(currentPlayerProgress);
+
+      console.log(22222, currentPlayerProgress);
+      console.log(22223, otherPlayerProgress);
 
       game.finish();
       await this.gamesRepository.save(game);

@@ -304,24 +304,31 @@ describe('users (e2e)', () => {
       .expect(HttpStatus.OK);
   });
 
-  it('should return my active game', async () => {
+  // it('should return my statistic', async () => {
+  //   await request(app.getHttpServer())
+  //     .get(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/my-statistic`)
+  //     .auth(accessToken_2, { type: 'bearer' })
+  //     .expect(HttpStatus.OK);
+  // });
+
+  it('should not return my active game', async () => {
     await request(app.getHttpServer())
       .get(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/my-current`)
       .auth(accessToken_1, { type: 'bearer' })
       .expect(HttpStatus.NOT_FOUND);
   });
 
-  it('should return my active game', async () => {
+  it('should not return my active game', async () => {
     await request(app.getHttpServer())
       .get(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/my-current`)
       .auth(accessToken_2, { type: 'bearer' })
       .expect(HttpStatus.NOT_FOUND);
   });
 
-  // it('should not return game by id', async () => {
-  //   await request(app.getHttpServer())
-  //     .get(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/${'ggggg'}`) // createdGame.body.id
-  //     .auth(accessToken_1, { type: 'bearer' })
-  //     .expect(HttpStatus.BAD_REQUEST);
-  // });
+  it('should not return game by id', async () => {
+    await request(app.getHttpServer())
+      .get(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/${'ggggg'}`) // createdGame.body.id
+      .auth(accessToken_1, { type: 'bearer' })
+      .expect(HttpStatus.BAD_REQUEST);
+  });
 });

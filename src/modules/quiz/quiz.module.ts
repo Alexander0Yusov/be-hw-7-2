@@ -26,6 +26,7 @@ import { GetMyCurrentHandler } from './application/usecases/games/get-my-current
 import { GetGameByIdHandler } from './application/usecases/games/get-current-game-by-id.query-handler';
 import { GameQuestion } from './domain/game-question/game-question.entity';
 import { PlayerProgressRepository } from './infrastructure/player-progress.repository';
+import { PlayerProgressQueryRepository } from './infrastructure/query/player-progress-query.repository';
 
 export const CommandHandlers = [
   CreateQuestionUseCase,
@@ -65,6 +66,7 @@ export const CommandHandlers = [
     AnswersQueryRepository,
     //
     PlayerProgressRepository,
+    PlayerProgressQueryRepository,
     ...CommandHandlers,
   ],
 })
