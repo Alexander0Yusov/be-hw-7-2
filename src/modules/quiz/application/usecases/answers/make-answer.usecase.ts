@@ -3,10 +3,7 @@ import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes'
 import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { Answer } from 'src/modules/quiz/domain/answer/answer.entity';
 import { AnswerInputDto } from 'src/modules/quiz/dto/answer/answer-input.dto';
-import {
-  AnswerStatuses,
-  GameStatuses,
-} from 'src/modules/quiz/dto/game-pair-quiz/answer-status';
+import { AnswerStatuses } from 'src/modules/quiz/dto/game-pair-quiz/answer-status';
 import { AnswersRepository } from 'src/modules/quiz/infrastructure/answers.repository';
 import { GamesRepository } from 'src/modules/quiz/infrastructure/games.repository';
 import { PlayerProgressRepository } from 'src/modules/quiz/infrastructure/player-progress.repository';
@@ -57,24 +54,24 @@ export class MakeAnswerUseCase
       (a, b) => a.question.createdAt.getTime() - b.question.createdAt.getTime(),
     );
 
-    console.log(
-      'gameQuestionsArr:',
-      gameQuestionsArr.map((gq) => gq.id),
-    );
-    console.log(
-      'answersArr:',
-      answersArr.map((a) => a.gameQuestionId),
-    );
+    // console.log(
+    //   'gameQuestionsArr:',
+    //   gameQuestionsArr.map((gq) => gq.id),
+    // );
+    // console.log(
+    //   'answersArr:',
+    //   answersArr.map((a) => a.gameQuestionId),
+    // );
 
     // ищем первый неотвеченный вопрос
     const firstQuestionWithoutAnswer = gameQuestionsArr.find(
       (gq) => !answersArr.map((item) => item.gameQuestionId).includes(gq.id),
     );
 
-    console.log(
-      'firstQuestionWithoutAnswer:',
-      firstQuestionWithoutAnswer?.id ?? 'none',
-    );
+    // console.log(
+    //   'firstQuestionWithoutAnswer:',
+    //   firstQuestionWithoutAnswer?.id ?? 'none',
+    // );
 
     if (!firstQuestionWithoutAnswer) {
       throw new DomainException({
@@ -89,16 +86,16 @@ export class MakeAnswerUseCase
       });
     }
 
-    console.log(
-      'Проверяем вопрос:',
-      firstQuestionWithoutAnswer.id,
-      firstQuestionWithoutAnswer.question.body,
-    );
-    console.log(
-      'Правильные ответы:',
-      firstQuestionWithoutAnswer.question.correctAnswers,
-    );
-    console.log('Ответ пользователя:', dto.answer);
+    // console.log(
+    //   'Проверяем вопрос:',
+    //   firstQuestionWithoutAnswer.id,
+    //   firstQuestionWithoutAnswer.question.body,
+    // );
+    // console.log(
+    //   'Правильные ответы:',
+    //   firstQuestionWithoutAnswer.question.correctAnswers,
+    // );
+    // console.log('Ответ пользователя:', dto.answer);
 
     // сличаем ответ
     const answerStatus = firstQuestionWithoutAnswer.question.correctAnswers
@@ -118,23 +115,23 @@ export class MakeAnswerUseCase
 
     const answer = await this.answersRepository.save(newAnswer);
 
-    console.log('Сохранён ответ:', {
-      id: answer.id,
-      gameQuestionId: answer.gameQuestionId,
-      status: answer.status,
-      body: answer.body,
-    });
+    // console.log('Сохранён ответ:', {
+    //   id: answer.id,
+    //   gameQuestionId: answer.gameQuestionId,
+    //   status: answer.status,
+    //   body: answer.body,
+    // });
 
     currentPlayerProgress.answers.push(answer);
 
-    console.log(
-      'Все ответы игрока:',
-      currentPlayerProgress.answers.map((a) => ({
-        id: a.id,
-        qId: a.gameQuestionId,
-        status: a.status,
-      })),
-    );
+    // console.log(
+    //   'Все ответы игрока:',
+    //   currentPlayerProgress.answers.map((a) => ({
+    //     id: a.id,
+    //     qId: a.gameQuestionId,
+    //     status: a.status,
+    //   })),
+    // );
 
     // прибавляем 1 очко в прогрессе
     if (answerStatus === AnswerStatuses.Correct) {
@@ -142,8 +139,8 @@ export class MakeAnswerUseCase
       await this.playerProgressRepository.save(currentPlayerProgress);
     }
 
-    console.log('Статус ответа:', answerStatus);
-    console.log('Баллов на счету:', currentPlayerProgress.score);
+    // console.log('Статус ответа:', answerStatus);
+    // console.log('Баллов на счету:', currentPlayerProgress.score);
 
     // если этот ответ стал последним для обоих
     // то меняем статус игры и статусы прогрессов
@@ -151,8 +148,15 @@ export class MakeAnswerUseCase
       otherPlayerProgress.answers.length === game.gameQuestions.length &&
       currentPlayerProgress.answers.length === game.gameQuestions.length
     ) {
-      // значит другой игрок справился раньше и ему присуждается бонус+1
-      otherPlayerProgress.incrementScore();
+      const hasCorrect = otherPlayerProgress.answers.some(
+        (a) => a.status === AnswerStatuses.Correct,
+      );
+
+      if (hasCorrect) {
+        // если другой игрок имеет как минимум 1 балл и
+        // справился раньше, то ему присуждается бонус+1
+        otherPlayerProgress.incrementScore();
+      }
 
       if (otherPlayerProgress.score > currentPlayerProgress.score) {
         otherPlayerProgress.makeWin();
@@ -168,8 +172,8 @@ export class MakeAnswerUseCase
       await this.playerProgressRepository.save(otherPlayerProgress);
       await this.playerProgressRepository.save(currentPlayerProgress);
 
-      console.log(22222, currentPlayerProgress);
-      console.log(22223, otherPlayerProgress);
+      // console.log(22222, currentPlayerProgress);
+      // console.log(22223, otherPlayerProgress);
 
       game.finish();
       await this.gamesRepository.save(game);

@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/modules/user-accounts/guards/bearer/jwt-auth.guard';
@@ -24,8 +25,10 @@ import { GetGameByIdQuery } from '../application/usecases/games/get-current-game
 import { StatisticViewDto } from '../dto/game-pair-quiz/statistic-view.dto';
 import { PlayerProgressQueryRepository } from '../infrastructure/query/player-progress-query.repository';
 import { ConnectOrCreatePairCommand } from '../application/usecases/games/connect-or-create-pair.usecase';
+import { PaginatedViewDto } from 'src/core/dto/base.paginated.view-dto';
+import { GetMyGamesQueryParams } from '../dto/game-pair-quiz/get-my-games-query-params.input-dto';
 
-@Controller('pair-game-quiz/pairs')
+@Controller('pair-game-quiz')
 export class PairGameQuizController {
   constructor(
     private readonly commandBus: CommandBus,
@@ -36,7 +39,7 @@ export class PairGameQuizController {
     private playerProgressQueryRepository: PlayerProgressQueryRepository,
   ) {}
 
-  @Post('connection')
+  @Post('pairs/connection')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async connectOrCreatePair(
@@ -51,7 +54,7 @@ export class PairGameQuizController {
     return game;
   }
 
-  @Post('my-current/answers')
+  @Post('pairs/my-current/answers')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async postAnswer(
@@ -68,7 +71,7 @@ export class PairGameQuizController {
     return answer;
   }
 
-  @Get('my-current')
+  @Get('pairs/my-current')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getCurrent(
@@ -77,20 +80,31 @@ export class PairGameQuizController {
     return await this.queryBus.execute(new GetMyCurrentQuery(user.id));
   }
 
-  @Get('my-statistic')
+  @Get('users/my-statistic')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getMyStatistic(
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<StatisticViewDto> {
-    console.log(88888888, '=======================================', user.id);
+    // console.log(88888888, '=======================================', user.id);
 
     return await this.playerProgressQueryRepository.getStatisticByUserId(
       user.id,
     );
   }
 
-  @Get(':id')
+  @Get('pairs/my')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async getAll(
+    @Query() query: GetMyGamesQueryParams,
+    @ExtractUserFromRequest() user: UserContextDto,
+  ): Promise<PaginatedViewDto<PostConnectionViewDto[]>> {
+    return await this.gamesQueryRepository.getMyAll(query, user.id);
+  }
+
+  // роут с параметром должен быть вконце иначе в него будет попадать все подряд
+  @Get('pairs/:id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async getCurrentById(

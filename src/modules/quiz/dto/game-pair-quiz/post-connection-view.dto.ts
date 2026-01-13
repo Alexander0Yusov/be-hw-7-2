@@ -1,6 +1,6 @@
 import { Game } from '../../domain/game/game.entity';
 import { PlayerProgress } from '../../domain/player-progress/player-progress.entity';
-import { AnswerStatuses, GameStatuses } from './answer-status';
+import { GameStatuses } from './answer-status';
 import { GamePlayerProgressView } from './game-player-progress-view';
 
 export class PostConnectionViewDto {

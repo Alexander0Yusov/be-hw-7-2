@@ -11,7 +11,7 @@ import { Game } from '../game/game.entity';
 import { Answer } from '../answer/answer.entity';
 import { BaseDomainEntity } from 'src/core/base-domain-entity/base-domain-entity';
 
-enum VictoryStatus {
+export enum VictoryStatus {
   Loss = 'Loss',
   Win = 'Win',
   Draw = 'Draw',

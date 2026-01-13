@@ -304,12 +304,27 @@ describe('users (e2e)', () => {
       .expect(HttpStatus.OK);
   });
 
-  // it('should return my statistic', async () => {
-  //   await request(app.getHttpServer())
-  //     .get(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/my-statistic`)
-  //     .auth(accessToken_2, { type: 'bearer' })
-  //     .expect(HttpStatus.OK);
-  // });
+  it('should return my statistic', async () => {
+    await request(app.getHttpServer())
+      .get(`/${GLOBAL_PREFIX}/pair-game-quiz/users/my-statistic`)
+      .auth(accessToken_2, { type: 'bearer' })
+      .expect(HttpStatus.OK);
+  });
+
+  it('should create game twice', async () => {
+    // создание игры
+    createdGame = await request(app.getHttpServer())
+      .post(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/connection`)
+      .auth(accessToken_1, { type: 'bearer' })
+      .expect(HttpStatus.OK);
+  });
+
+  it('should return my all games', async () => {
+    await request(app.getHttpServer())
+      .get(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/my?sortBy=status`)
+      .auth(accessToken_2, { type: 'bearer' })
+      .expect(HttpStatus.OK);
+  });
 
   it('should not return my active game', async () => {
     await request(app.getHttpServer())
